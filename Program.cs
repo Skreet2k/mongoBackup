@@ -1,8 +1,11 @@
-using Hangfire;
-using Hangfire.MemoryStorage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Serilog;
+using SFTP.Wrapper;
+using SFTP.Wrapper.Configs;
 
 namespace MongoBackupService
 {
@@ -10,26 +13,33 @@ namespace MongoBackupService
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateLogger();
+            CreateHostBuilder(args).RunConsoleAsync();
         }
 
         private static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args)
-                .UseWindowsService()
                 .ConfigureHostConfiguration(config =>
                 {
                     config.AddJsonFile("appsettings.json", true, true);
+                    config.AddEnvironmentVariables();
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddOptions<BackupOptions>()
                         .Bind(hostContext.Configuration.GetSection("Backup"))
-                        .Validate(c => !string.IsNullOrEmpty(c.Expression));
-                    services.AddHangfire(x => x.UseMemoryStorage());
-                    services.AddHangfireServer();
-                    services.AddHostedService<Worker>();
-                });
+                        .Validate(c => c.IsValid());
+                    services.AddSingleton<BackupWorker>();
+                    services.AddOptions<SftpConfig>().Bind(hostContext.Configuration.GetSection("Sftp"))
+                        .Validate(c => c.IsValid());
+                    services.UseSftp(x => x.GetRequiredService<IOptions<SftpConfig>>().Value);
+                    services.AddHostedService(x => x.GetService<BackupWorker>());
+                })
+                .UseSerilog();
         }
     }
 }

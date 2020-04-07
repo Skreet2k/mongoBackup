@@ -1,24 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.0</TargetFramework>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
         <UserSecretsId>dotnet-MongoBackupService-239EE381-96BA-4849-9A72-FD31D007B03A</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Hangfire" Version="1.7.9" />
-        <PackageReference Include="Hangfire.MemoryStorage" Version="1.6.3" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.1" />
         <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="3.1.1" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.1" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.1" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="3.1.1" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.1" />
+        <PackageReference Include="Serilog" Version="2.9.0" />
+        <PackageReference Include="Serilog.AspNetCore" Version="3.2.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+        <PackageReference Include="SFTP.Wrapper" Version="2.0.1" />
     </ItemGroup>
-
-    <ItemGroup>
-      <None Update="mongodump.exe">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
+    
 </Project>
